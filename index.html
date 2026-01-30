@@ -1,49 +1,63 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Dynamic Quiz Application</title>
+    <title>Dynamic Quiz App</title>
+
+    <!-- Responsive viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="container">
-    <h1 id="title">Dynamic Quiz</h1>
 
-    <!-- Start Screen -->
+    <h1>Dynamic Quiz</h1>
+
+    <!-- START SCREEN -->
     <div id="start-screen">
-        <label>Category:</label>
-        <select id="category">
-            <option value="math">Math</option>
-        </select>
+        <h3>Select Difficulty</h3>
 
-        <label>Difficulty:</label>
         <select id="difficulty">
             <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
         </select>
 
-        <button id="startBtn">Start Quiz</button>
+        <br><br>
+        <button onclick="startQuiz()">Start Quiz</button>
     </div>
 
-    <!-- Quiz Screen -->
+    <!-- QUIZ SCREEN -->
     <div id="quiz-screen" class="hidden">
-        <div id="timer">Time Left: <span id="time">10</span>s</div>
         <h2 id="question"></h2>
+
         <div id="options"></div>
-        <button id="nextBtn">Next</button>
-        <button id="submitBtn" class="hidden">Submit</button>
+
+        <p>⏳ Time Left: <span id="timer">10</span>s</p>
+
+        <button onclick="nextQuestion()">Next</button>
     </div>
 
-    <!-- Result Screen -->
+    <!-- RESULT SCREEN -->
     <div id="result-screen" class="hidden">
-        <h2>Result Analysis</h2>
+        <h2>Quiz Result</h2>
+
         <p id="score"></p>
-        <p id="correct"></p>
-        <p id="incorrect"></p>
+        <p id="performance"></p>
+
+        <canvas id="chart"></canvas>
+
+        <br>
+        <button onclick="location.reload()">Restart</button>
     </div>
+
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="script.js"></script>
+
 </body>
 </html>
+
