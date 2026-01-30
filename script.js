@@ -1,97 +1,130 @@
+// Question Bank
+const questions = {
+    easy: [
+        {q:"2 + 2 = ?", options:["3","4","5"], answer:1},
+        {q:"5 - 3 = ?", options:["1","2","3"], answer:1},
+        {q:"3 + 1 = ?", options:["2","4","5"], answer:1}
+    ],
 
-const questions = [
-    {
-        q: "What is 1 + 2?",
-        options: ["1", "2", "3", "4"],
-        answer: "3"
-    },
-    {
-        q: "What is 5 - 3?",
-        options: ["1", "2", "3", "4"],
-        answer: "2"
-    }
-];
+    medium: [
+        {q:"6 x 2 = ?", options:["10","12","14"], answer:1},
+        {q:"9 ÷ 3 = ?", options:["2","3","4"], answer:1},
+        {q:"15 - 5 = ?", options:["8","10","12"], answer:1}
+    ],
 
-let currentQuestion = 0;
+    hard: [
+        {q:"12 ÷ 4 = ?", options:["2","3","4"], answer:1},
+        {q:"25 x 2 = ?", options:["40","45","50"], answer:2},
+        {q:"18 - 9 = ?", options:["7","8","9"], answer:2}
+    ]
+};
+
+let selected = [];
+let current = 0;
 let score = 0;
 let timer;
 let timeLeft = 10;
-let userAnswers = [];
+let timeData = [];
+let answered = false;
 
-document.getElementById("startBtn").onclick = startQuiz;
+// Start Quiz
+function startQuiz(){
+    const diff = document.getElementById("difficulty").value;
+    selected = questions[diff];
 
-function startQuiz() {
     document.getElementById("start-screen").classList.add("hidden");
     document.getElementById("quiz-screen").classList.remove("hidden");
+
     loadQuestion();
 }
 
-function loadQuestion() {
-    resetTimer();
-    let q = questions[currentQuestion];
+// Load Question
+function loadQuestion(){
+    answered = false;
+    clearInterval(timer);
+
+    timeLeft = 10;
+    document.getElementById("timer").innerText = timeLeft;
+
+    const q = selected[current];
     document.getElementById("question").innerText = q.q;
 
-    let optionsDiv = document.getElementById("options");
-    optionsDiv.innerHTML = "";
+    const optDiv = document.getElementById("options");
+    optDiv.innerHTML = "";
 
-    q.options.forEach(opt => {
-        let btn = document.createElement("button");
+    q.options.forEach((opt,i)=>{
+        const btn = document.createElement("button");
         btn.innerText = opt;
-        btn.onclick = () => selectAnswer(opt);
-        optionsDiv.appendChild(btn);
-    });
 
-    document.getElementById("nextBtn").style.display =
-        currentQuestion === questions.length - 1 ? "none" : "block";
+        btn.onclick = ()=>{
+            if(!answered){
+                answered = true;
 
-    document.getElementById("submitBtn").classList.toggle(
-        "hidden",
-        currentQuestion !== questions.length - 1
-    );
-}
-
-function selectAnswer(option) {
-    userAnswers[currentQuestion] = option;
-}
-
-document.getElementById("nextBtn").onclick = () => {
-    currentQuestion++;
-    loadQuestion();
-};
-
-document.getElementById("submitBtn").onclick = showResult;
-
-function resetTimer() {
-    clearInterval(timer);
-    timeLeft = 10;
-    document.getElementById("time").innerText = timeLeft;
-
-    timer = setInterval(() => {
-        timeLeft--;
-        document.getElementById("time").innerText = timeLeft;
-        if (timeLeft === 0) {
-            clearInterval(timer);
-            currentQuestion++;
-            if (currentQuestion < questions.length) {
-                loadQuestion();
-            } else {
-                showResult();
+                if(i === q.answer){
+                    score++;
+                }
             }
-        }
-    }, 1000);
-}
+        };
 
-function showResult() {
-    clearInterval(timer);
-    questions.forEach((q, i) => {
-        if (userAnswers[i] === q.answer) score++;
+        optDiv.appendChild(btn);
     });
 
+    startTimer();
+}
+
+// Timer
+function startTimer(){
+    let spent = 0;
+
+    timer = setInterval(()=>{
+        timeLeft--;
+        spent++;
+
+        document.getElementById("timer").innerText = timeLeft;
+
+        if(timeLeft === 0){
+            timeData.push(spent);
+            nextQuestion();
+        }
+    },1000);
+}
+
+// Next Question
+function nextQuestion(){
+    clearInterval(timer);
+    current++;
+
+    if(current < selected.length){
+        loadQuestion();
+    } else {
+        showResults();
+    }
+}
+
+// Show Results
+function showResults(){
     document.getElementById("quiz-screen").classList.add("hidden");
     document.getElementById("result-screen").classList.remove("hidden");
 
-    document.getElementById("score").innerText = `Score: ${score}/${questions.length}`;
-    document.getElementById("correct").innerText = `Correct: ${score}`;
-    document.getElementById("incorrect").innerText =
-        `Incorrect: ${questions.length - score}`;
+    let total = selected.length;
+    let wrong = total - score;
+    let percent = (score/total)*100;
+
+    document.getElementById("score").innerText =
+        `Score: ${score} / ${total}`;
+
+    document.getElementById("performance").innerText =
+        `Performance: ${percent.toFixed(1)}%`;
+
+    // Chart
+    new Chart(document.getElementById("chart"),{
+        type:'doughnut',
+        data:{
+            labels:["Correct","Wrong"],
+            datasets:[{
+                data:[score, wrong]
+            }]
+        }
+    });
 }
+
